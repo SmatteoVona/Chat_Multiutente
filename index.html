@@ -21,6 +21,21 @@
     <div>
         <input type="button" name="fine" value="fine" style="float:left;margin-left:79px;width:50px;height:30px" onclick="endChat()">
     </div>
+
+
+
+
+
+	<div id="users-connected" style="position: fixed; right: 10px; top: 10px;">
+		<h2>Utenti Connessi</h2>
+		<ul id="user-list"></ul>
+	  </div>
+
+
+
+
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -69,6 +84,26 @@
 			console.log('clienti connessi:', data);
 			document.getElementById("cname").value = data;
 		});
+
+
+
+
+		socket.on('update-users', function(userList) {
+  const ul = document.getElementById('user-list');
+  ul.innerHTML = '';
+  userList.forEach(function(user) {
+    let li = document.createElement('li');
+    li.textContent = user;
+    ul.appendChild(li);
+  });
+});
+
+
+
+
+
+
+
 		function endChat() {
 			socket.disconnect(socket);
 			document.getElementById("cname").value = "";
