@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+</head>
+<body style="background-color:orange;">
+    <h3 id="inizio">chat</h3>
+    <label for="cname">clienti connessi in chat </label>
+    <input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
+    <br>
+    <label for="fname">chat: </label>
+    <textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
+    <br>
+    <label for="tname">messaggio: </label>
+    <input type="text" id="tname" name="tname" value=""><br>
+    <br>
+    <div>
+        <input type="button" name="invia" value="Invia" style="float:left;margin-left:75px;width:50px;height:30px" onclick="gestisci()">
+    </div>
+    <div>
+        <input type="button" name="fine" value="fine" style="float:left;margin-left:79px;width:50px;height:30px" onclick="endChat()">
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let nickname = prompt("Please enter your nickname:");
+            while(nickname == null || nickname.trim() === "") {
+                nickname = prompt("The nickname cannot be empty. Please enter your nickname:");
+            }
+            window.sessionStorage.setItem('nickname', nickname);
+        });
+
+        const socket = io.connect('http://127.0.0.1:3000/');
+        let err = "";
+        console.log('inizio');
+        function gestisci() {
+            let testo = document.getElementById("tname").value;
+            let nick = window.sessionStorage.getItem('nickname'); // Get nickname from sessionStorage
+            if (testo == '') {
+                err = err + "Per favore, compilare il campo Io\n";
+            }
+            if (nick == '') {
+                err = err + "Per favore, inserire il nickname\n";
+            }
+            if (err.length > 0) {
+                alert(err);
+                err = '';
+            } else {
+                let text_box = document.getElementById("tname");
+                socket.emit("messaggio", nick + ": " + text_box.value); // Use the nickname from sessionStorage
+                document.getElementById("fname").value += nick + ": " + text_box.value + "\n";
+                text_box.value = "";
+            }
+        }
+
+
+		socket.on("connesso", function (data) { //get button status from server
+			//console.log('dati del server',data);
+			document.getElementById("inizio").innerHTML = "Chat Server in ascolto su ip: " + data
+			console.log('ascolta connessione');
+		});
+		socket.on("messaggio", function (data) { //get button status from server
+			//console.log('dati del server',data);
+			document.getElementById("fname").value += data + "\n";
+			console.log('ascolta messaggio');
+		});
+		socket.on("stato", function (data) {
+			console.log('clienti connessi:', data);
+			document.getElementById("cname").value = data;
+		});
+		function endChat() {
+			socket.disconnect(socket);
+			document.getElementById("cname").value = "";
+			document.getElementById("tname").value = "";
+			document.getElementById("fname").value = "";
+			document.getElementById("Nickname").value = "";
+		}
+	</script>
+</body>
+
+</html
