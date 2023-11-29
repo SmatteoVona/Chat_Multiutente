@@ -1,73 +1,77 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Home Page</title>
+	<meta charset="UTF-8">
+	<title>Home Page</title>
 </head>
+
 <body style="background-color:orange;">
-    <h3 id="inizio">chat</h3>
-    <label for="cname">clienti connessi in chat </label>
-    <input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
-    <br>
-    <label for="fname">chat: </label>
-    <textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
-    <br>
-    <label for="tname">messaggio: </label>
-    <input type="text" id="tname" name="tname" value=""><br>
-    <br>
-    <div>
-        <input type="button" name="invia" value="Invia" style="float:left;margin-left:75px;width:50px;height:30px" onclick="gestisci()">
-    </div>
-    <div>
-        <input type="button" name="fine" value="fine" style="float:left;margin-left:79px;width:50px;height:30px" onclick="endChat()">
-    </div>
-
-
-
-
+	<h3 id="inizio">chat</h3>
+	<label for="cname">clienti connessi in chat </label>
+	<input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
+	<br>
+	<label for="fname">chat: </label>
+	<textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
+	<br>
+	<label for="tname">messaggio: </label>
+	<input type="text" id="tname" name="tname" value=""><br>
+	<br>
+	<div>
+		<input type="button" name="invia" value="Invia" style="float:left;margin-left:75px;width:50px;height:30px"
+			onclick="gestisci()">
+	</div>
+	<div>
+		<input type="button" name="fine" value="fine" style="float:left;margin-left:79px;width:50px;height:30px"
+			onclick="endChat()">
+	</div>
 
 	<div id="users-connected" style="position: fixed; right: 10px; top: 10px;">
 		<h2>Utenti Connessi</h2>
 		<ul id="user-list"></ul>
-	  </div>
+	</div>
 
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		//registra un ascoltatore di eventi che si attiva quando il documento HTML (la pagina web) è completamente caricato e il DOM è pronto
+		document.addEventListener('DOMContentLoaded', (event) => {
+			let nickname = prompt("Please enter your nickname:");
+			while (nickname == null || nickname.trim() === "") {
+				nickname = prompt("The nickname cannot be empty. Please enter your nickname:");
+			}
 
+			//salva il nickname nell'archiviazione di sessione del browser. L'archiviazione di sessione è una forma di memorizzazione sul lato client che 
+			//consente di salvare dati per la durata della sessione della pagina (finché la scheda del browser è aperta). 
+			window.sessionStorage.setItem('nickname', nickname);
+			socket.emit("utentissimo", nickname);
+		});
 
-
-
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            let nickname = prompt("Please enter your nickname:");
-            while(nickname == null || nickname.trim() === "") {
-                nickname = prompt("The nickname cannot be empty. Please enter your nickname:");
-            }
-            window.sessionStorage.setItem('nickname', nickname);
-        });
-
-        const socket = io.connect('http://127.0.0.1:3000/');
-        let err = "";
-        console.log('inizio');
-        function gestisci() {
-            let testo = document.getElementById("tname").value;
-            let nick = window.sessionStorage.getItem('nickname'); // Get nickname from sessionStorage
-            if (testo == '') {
-                err = err + "Per favore, compilare il campo Io\n";
-            }
-            if (nick == '') {
-                err = err + "Per favore, inserire il nickname\n";
-            }
-            if (err.length > 0) {
-                alert(err);
-                err = '';
-            } else {
-                let text_box = document.getElementById("tname");
-                socket.emit("messaggio", nick + ": " + text_box.value); // Use the nickname from sessionStorage
-                document.getElementById("fname").value += nick + ": " + text_box.value + "\n";
-                text_box.value = "";
-            }
-        }
+		const socket = io.connect('http://127.0.0.1:3000/');
+		let err = "";
+		console.log('inizio');
+		function gestisci() {
+			let testo = document.getElementById("tname").value;
+			let nick = window.sessionStorage.getItem('nickname'); // Get nickname from sessionStorage
+			//socket.emit('set-nickname', nick);
+			if (testo == '') {
+				err = err + "Per favore, compilare il campo Io\n";
+			}
+			if (nick == '') {
+				err = err + "Per favore, inserire il nickname\n";
+			}
+			if (err.length > 0) {
+				alert(err);
+				err = '';
+			} else {
+				let text_box = document.getElementById("tname");
+				//invio al server una stringa con "id" messaggio
+				socket.emit("messaggio", nick + ": " + text_box.value); 
+				
+				//bisogna usare il .value perchè essendo elementi del DOM ometterlo significherebbe inviare parte del html
+				document.getElementById("fname").value += nick + ": " + text_box.value + "\n";
+				text_box.value = "";
+			}
+		}
 
 
 		socket.on("connesso", function (data) { //get button status from server
@@ -75,11 +79,13 @@
 			document.getElementById("inizio").innerHTML = "Chat Server in ascolto su ip: " + data
 			console.log('ascolta connessione');
 		});
+
 		socket.on("messaggio", function (data) { //get button status from server
 			//console.log('dati del server',data);
 			document.getElementById("fname").value += data + "\n";
 			console.log('ascolta messaggio');
 		});
+
 		socket.on("stato", function (data) {
 			console.log('clienti connessi:', data);
 			document.getElementById("cname").value = data;
@@ -88,15 +94,15 @@
 
 
 
-		socket.on('update-users', function(userList) {
-  const ul = document.getElementById('user-list');
-  ul.innerHTML = '';
-  userList.forEach(function(user) {
-    let li = document.createElement('li');
-    li.textContent = user;
-    ul.appendChild(li);
-  });
-});
+		socket.on('update-users', function (userList) {
+			const ul = document.getElementById('user-list');
+			ul.innerHTML = '';
+			userList.forEach(function (user) {
+				let li = document.createElement('li');
+				li.textContent = user;
+				ul.appendChild(li);
+			});
+		});
 
 
 
