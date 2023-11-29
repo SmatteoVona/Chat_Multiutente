@@ -28,7 +28,9 @@
 
 	<div id="users-connected" style="position: fixed; right: 10px; top: 10px;">
 		<h2>Utenti Connessi</h2>
-		<ul id="user-list"></ul>
+		<form id="user-list">
+			<!-- Le checkbox degli utenti connessi verranno aggiunte qui -->
+		</form>
 	</div>
 
 	<script src="/socket.io/socket.io.js"></script>
@@ -65,8 +67,8 @@
 			} else {
 				let text_box = document.getElementById("tname");
 				//invio al server una stringa con "id" messaggio
-				socket.emit("messaggio", nick + ": " + text_box.value); 
-				
+				socket.emit("messaggio", nick + ": " + text_box.value);
+
 				//bisogna usare il .value perchè essendo elementi del DOM ometterlo significherebbe inviare parte del html
 				document.getElementById("fname").value += nick + ": " + text_box.value + "\n";
 				text_box.value = "";
@@ -91,18 +93,32 @@
 			document.getElementById("cname").value = data;
 		});
 
+		socket.on('update-users', function(userList) {
+    const userForm = document.getElementById('user-list');
+    const myNickname = window.sessionStorage.getItem('nickname'); // o la tua logica per ottenere il nickname
 
+    userForm.innerHTML = '';
+    userList.forEach(function(user) {
+        if (user !== myNickname) { // Escludi il proprio nickname
+            let checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = user;
+            checkbox.name = 'users';
+            checkbox.value = user;
 
+            let label = document.createElement('label');
+            label.htmlFor = user;
+            label.appendChild(document.createTextNode(user));
 
-		socket.on('update-users', function (userList) {
-			const ul = document.getElementById('user-list');
-			ul.innerHTML = '';
-			userList.forEach(function (user) {
-				let li = document.createElement('li');
-				li.textContent = user;
-				ul.appendChild(li);
-			});
-		});
+            let div = document.createElement('div');
+            div.appendChild(checkbox);
+            div.appendChild(label);
+
+            userForm.appendChild(div);
+        }
+    });
+});
+
 
 
 
