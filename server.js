@@ -3,8 +3,8 @@ const fs = require('fs');
 const port = 3000;
 const ip = "127.0.0.1";
 let numClienti = 0;
-const users = [];
-const userSockets = {};
+
+
 
 function requestHandler(request, response) {
 	fs.readFile('index.html', function (error, data) {
@@ -50,6 +50,9 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+
+	const userSockets = {};
+	const users = [];
 	socket.on('utentissimo', function (nickname) {
 		socket.username = nickname;
         userSockets[nickname] = socket; // Memorizza il socket con il nickname come chiave
