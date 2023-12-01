@@ -73,6 +73,7 @@
 				document.getElementById("fname").value += nick + ": " + text_box.value + "\n";
 				text_box.value = "";
 			}
+			
 		}
 
 
@@ -93,12 +94,12 @@
 			document.getElementById("cname").value = data;
 		});
 
-		socket.on('update-users', function(userList) {
+		socket.on('update-users', function (userList) {
     const userForm = document.getElementById('user-list');
     const myNickname = window.sessionStorage.getItem('nickname'); // o la tua logica per ottenere il nickname
 
     userForm.innerHTML = '';
-    userList.forEach(function(user) {
+    userList.forEach(function (user) {
         if (user !== myNickname) { // Escludi il proprio nickname
             let checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -117,6 +118,25 @@
             userForm.appendChild(div);
         }
     });
+
+    // Aggiungi un pulsante di invio
+    let submitButton = document.createElement('button');
+    submitButton.innerText = 'Invia Selezionati';
+    userForm.appendChild(submitButton);
+
+    // Aggiungi un gestore di eventi al pulsante
+    submitButton.addEventListener('click', function(event) {
+		event.preventDefault()
+        let selectedUsers = [];
+        document.querySelectorAll('#user-list input[type="checkbox"]:checked').forEach(function(checkbox) {
+            selectedUsers.push(checkbox.value);
+        });
+
+        // Invia l'array dei valori selezionati al server
+        socket.emit('selected-users', selectedUsers);
+    });
+
+
 });
 
 

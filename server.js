@@ -4,6 +4,7 @@ const port = 3000;
 const ip = "127.0.0.1";
 let numClienti = 0;
 const users = [];
+const userSockets = {};
 
 function requestHandler(request, response) {
 	fs.readFile('index.html', function (error, data) {
@@ -31,24 +32,29 @@ const io = require("socket.io")(server, {
 
 io.sockets.on('connection', function (socket) {
 
+
+
+
 	socket.emit('connesso', ip + " " + "porta:" + " " + port);
 	numClienti++;
 	io.sockets.emit('stato', numClienti);
 	console.log('Clienti connessi:', numClienti);
 
 	socket.on('messaggio', function (data) {
-		console.log("client: " + data);
-		socket.broadcast.emit('messaggio', data);
-	});
+        console.log("client: " + data);
+        // Invia il messaggio solo agli utenti selezionati
+        selectedUsers.forEach(nickname => {
+            if (userSockets[nickname]) {
+                userSockets[nickname].emit('messaggio', data);
+            }
+        });
+    });
 
 	socket.on('utentissimo', function (nickname) {
-		//socket.nome = nickname;
-		//console.log(nickname);
-		//socket.id è un id univoco creato automaticamente da socket.io all'avvio di una connessione
-		//socket.username = socket.id;
 		socket.username = nickname;
-		users.push(socket.username);
-		updateConnectedUsers();
+        userSockets[nickname] = socket; // Memorizza il socket con il nickname come chiave
+        users.push(socket.username);
+        updateConnectedUsers();
 	});
 
 	socket.on('disconnect', function () {
@@ -63,6 +69,13 @@ io.sockets.on('connection', function (socket) {
 		}
 		updateConnectedUsers();
 	});
+	let selectedUsers = [];
+
+	socket.on('selected-users', function(Utenti){
+		console.log("UTENTI CONNESSI : " + Utenti);
+		selectedUsers = Utenti
+	})
+
 });
 
 function updateConnectedUsers() {
