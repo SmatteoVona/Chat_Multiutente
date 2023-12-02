@@ -52,12 +52,15 @@
 		const socket = io.connect('http://127.0.0.1:3000/');
 		let err = "";
 
+		//TROVATO PROBLEMA CON PRIMO UTENTE, CAUSA SUBITO NULL E VEDE IL SUO NOME
+
 		function gestisci() {
 			let testo = document.getElementById("tname").value;
 			let nick = window.sessionStorage.getItem('nickname');
+			socket.emit("STAMPAPROVA", "\n\nUTENTE PROVA OOO " + nick);
 
 			if (testo == '') {
-				alert("Per favore, compilare il campo Io\n");
+				alert("Inserisci il nickname\n");
 			}
 			else {
 				let text_box = document.getElementById("tname");
@@ -73,15 +76,11 @@
 
 
 		socket.on("connesso", function (data) { //get button status from server
-			//console.log('dati del server',data);
 			document.getElementById("inizio").innerHTML = "Chat Server in ascolto su ip: " + data
-			console.log('ascolta connessione');
 		});
 
 		socket.on("messaggio", function (data) { //get button status from server
-			//console.log('dati del server',data);
 			document.getElementById("fname").value += data + "\n";
-			console.log('ascolta messaggio');
 		});
 
 		socket.on("stato", function (data) {
@@ -135,11 +134,9 @@
 		});
 
 		function endChat() {
-			socket.disconnect(socket);
-			document.getElementById("cname").value = "";
-			document.getElementById("tname").value = "";
-			document.getElementById("fname").value = "";
-			document.getElementById("Nickname").value = "";
+			document.body.style.backgroundColor = "black";
+			document.body.innerHTML = '<h1 style="color: white; text-align: center;">Disconnessione avvenuta con successo. Per riconnettersi premere F5</h1>';
+			socket.disconnect();
 		}
 	</script>
 </body>

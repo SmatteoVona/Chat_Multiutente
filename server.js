@@ -3,6 +3,8 @@ const fs = require('fs');
 const port = 3000;
 const ip = "127.0.0.1";
 let numClienti = 0;
+const userSockets = {};
+	const users = [];
 
 
 
@@ -32,9 +34,6 @@ const io = require("socket.io")(server, {
 
 io.sockets.on('connection', function (socket) {
 
-
-
-
 	socket.emit('connesso', ip + " " + "porta:" + " " + port);
 	numClienti++;
 	io.sockets.emit('stato', numClienti);
@@ -46,13 +45,13 @@ io.sockets.on('connection', function (socket) {
         selectedUsers.forEach(nickname => {
             if (userSockets[nickname]) {
                 userSockets[nickname].emit('messaggio', data);
+				//console.log('\n\nUTENTE CHE INVIA MESSAGGIO: ' + userSockets[nickname]);
             }
         });
     });
 
 
-	const userSockets = {};
-	const users = [];
+	
 	socket.on('utentissimo', function (nickname) {
 		socket.username = nickname;
         userSockets[nickname] = socket; // Memorizza il socket con il nickname come chiave
@@ -68,6 +67,7 @@ io.sockets.on('connection', function (socket) {
 
 		const index = users.indexOf(socket.username);
 		if (index > -1) {
+			//rimuove partendo dalla posizione di index 1 users
 			users.splice(index, 1);
 		}
 		updateConnectedUsers();
@@ -78,8 +78,13 @@ io.sockets.on('connection', function (socket) {
 		console.log("UTENTI CONNESSI : " + Utenti);
 		selectedUsers = Utenti
 	})
-
+socket.on('STAMPAPROVA', function(messaggio){
+	console.log(messaggio);
+})
 });
+
+
+
 
 function updateConnectedUsers() {
 	io.sockets.emit('update-users', users);
