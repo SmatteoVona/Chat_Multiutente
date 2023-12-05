@@ -4,14 +4,14 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Home Page</title>
+	<title>Chat multiutente</title>
 </head>
 
 <body style="background-color:grey;">
 	<div id="Spazio" style="margin-left: 40%;">
 		<h3 id="inizio">chat</h3>
-		<label for="cname">clienti connessi in chat </label>
-		<input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
+		<label for="ClientConnessi">clienti connessi in chat </label>
+		<input type="text" id="ClientConnessi" name="ClientConnessi" size="2" value="" disabled style="width: 20px"><br>
 		<br>
 		<label for="fname">chat: </label>
 		<textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
@@ -78,20 +78,21 @@
 		}
 
 
-		socket.on("connesso", function (data) { //get button status from server
+		socket.on("connesso", function (data) { 
 			document.getElementById("inizio").innerHTML = "Chat Server in ascolto su ip: " + data
 		});
 
-		socket.on("messaggio", function (data) { //get button status from server
+		socket.on("messaggio", function (data) { 
 			document.getElementById("fname").value += data + "\n";
 		});
 
 		socket.on("stato", function (data) {
 			//console.log('clienti connessi:', data);
-			document.getElementById("cname").value = data;
+			document.getElementById("ClientConnessi").value = data;
 		});
 
 		socket.on('update-users', function (userList) {
+			//user-list è il form dove compaiono gli utenti connessi
 			const userForm = document.getElementById('user-list');
 			const myNickname = window.sessionStorage.getItem('nickname');
 
