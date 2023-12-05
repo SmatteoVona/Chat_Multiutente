@@ -37,10 +37,10 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('connesso', ip + " " + "porta:" + " " + port);
 	numClienti++;
 	io.sockets.emit('stato', numClienti);
-	console.log('Clienti connessi:', numClienti);
+	//console.log('Clienti connessi:', numClienti);
 
 	socket.on('messaggio', function (data) {
-        console.log("client: " + data);
+        //console.log("client: " + data);
         // Invia il messaggio solo agli utenti selezionati
         selectedUsers.forEach(nickname => {
             if (userSockets[nickname]) {
@@ -52,7 +52,7 @@ io.sockets.on('connection', function (socket) {
 
 
 	
-	socket.on('utentissimo', function (nickname) {
+	socket.on('utenticonnessi', function (nickname) {
 		socket.username = nickname;
         userSockets[nickname] = socket; // Memorizza il socket con il nickname come chiave
         users.push(socket.username);
@@ -61,9 +61,9 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('disconnect', function () {
 		numClienti--;
-		console.log('Clienti connessi:', numClienti);
-		io.sockets.emit('stato', numClienti);
-		console.log('utente: disconnesso ' + socket.username);
+		//console.log('Clienti connessi:', numClienti);
+		//io.sockets.emit('stato', numClienti);
+		//console.log('utente: disconnesso ' + socket.username);
 
 		const index = users.indexOf(socket.username);
 		if (index > -1) {
@@ -75,16 +75,13 @@ io.sockets.on('connection', function (socket) {
 	let selectedUsers = [];
 
 	socket.on('selected-users', function(Utenti){
-		console.log("UTENTI CONNESSI : " + Utenti);
+		//console.log("UTENTI CONNESSI : " + Utenti);
 		selectedUsers = Utenti
 	})
 socket.on('STAMPAPROVA', function(messaggio){
-	console.log(messaggio);
+	//console.log(messaggio);
 })
 });
-
-
-
 
 function updateConnectedUsers() {
 	io.sockets.emit('update-users', users);

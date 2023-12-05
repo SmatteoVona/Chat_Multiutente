@@ -1,29 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Home Page</title>
 </head>
 
-<body style="background-color:orange;">
-	<h3 id="inizio">chat</h3>
-	<label for="cname">clienti connessi in chat </label>
-	<input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
-	<br>
-	<label for="fname">chat: </label>
-	<textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
-	<br>
-	<label for="tname">messaggio: </label>
-	<input type="text" id="tname" name="tname" value=""><br>
-	<br>
-	<div>
-		<input type="button" name="invia" value="Invia" style="float:left;margin-left:75px;width:50px;height:30px"
-			onclick="gestisci()">
-	</div>
-	<div>
-		<input type="button" name="fine" value="fine" style="float:left;margin-left:79px;width:50px;height:30px"
-			onclick="endChat()">
+<body style="background-color:grey;">
+	<div id="Spazio" style="margin-left: 40%;">
+		<h3 id="inizio">chat</h3>
+		<label for="cname">clienti connessi in chat </label>
+		<input type="text" id="cname" name="cname" size="2" value="" disabled style="width: 20px"><br>
+		<br>
+		<label for="fname">chat: </label>
+		<textarea id="fname" name="fname" value="" disabled style="width: 250px; height: 250px"></textarea><br>
+		<br>
+		<label for="tname">messaggio: </label>
+		<input type="text" id="tname" name="tname" value=""><br>
+		<br>
+		<div>
+			<input type="button" name="invia" value="Invia" style="float:left;margin-left:70px;width:50px;height:30px, "
+				onclick="gestisci()">
+		</div>
+		<div>
+			<input type="button" name="fine" value="fine" style="float:left;margin-left:70px;width:50px;height:30px"
+				onclick="endChat()">
+		</div>
 	</div>
 
 	<div id="users-connected" style="position: fixed; right: 10px; top: 10px;">
@@ -46,7 +49,7 @@
 			//salva il nickname nell'archiviazione di sessione del browser. L'archiviazione di sessione è una forma di memorizzazione sul lato client che 
 			//consente di salvare dati per la durata della sessione della pagina (finché la scheda del browser è aperta). 
 			window.sessionStorage.setItem('nickname', nickname);
-			socket.emit("utentissimo", nickname);
+			socket.emit("utenticonnessi", nickname);
 		});
 
 		const socket = io.connect('http://127.0.0.1:3000/');
@@ -57,10 +60,10 @@
 		function gestisci() {
 			let testo = document.getElementById("tname").value;
 			let nick = window.sessionStorage.getItem('nickname');
-			socket.emit("STAMPAPROVA", "\n\nUTENTE PROVA OOO " + nick);
+			//	socket.emit("STAMPAPROVA", "\n\nUTENTE PROVA OOO " + nick);
 
 			if (testo == '') {
-				alert("Inserisci il nickname\n");
+				alert("Il testo del messaggio dev'essere inserito\n");
 			}
 			else {
 				let text_box = document.getElementById("tname");
@@ -84,13 +87,13 @@
 		});
 
 		socket.on("stato", function (data) {
-			console.log('clienti connessi:', data);
+			//console.log('clienti connessi:', data);
 			document.getElementById("cname").value = data;
 		});
 
 		socket.on('update-users', function (userList) {
 			const userForm = document.getElementById('user-list');
-			const myNickname = window.sessionStorage.getItem('nickname'); // o la tua logica per ottenere il nickname
+			const myNickname = window.sessionStorage.getItem('nickname');
 
 			userForm.innerHTML = '';
 			userList.forEach(function (user) {
